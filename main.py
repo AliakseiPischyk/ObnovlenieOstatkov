@@ -173,3 +173,33 @@ zoom_stock_template['Заполнение обязательных ячеек'] 
 zoom_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
 zoom_stock_template['Цена с НДС'] = zoom_df_merged['ЗМ c НДС']
 zoom_stock_template.to_excel('result/zoom.xlsx', index=False)
+
+tian_prefixed = [filename for filename in os.listdir('./prices') if filename.startswith('ООО ТИАН')]
+tian_df = pd.read_excel('prices/' + tian_prefixed[0])
+tian_df = tian_df.drop(tian_df.columns[[0, 2, 3, 5, 7, 8, 9, 10]], axis=1)
+tian_df.columns = tian_df.loc[1].values.flatten().tolist()
+tian_df = tian_df.drop([0, 1, 2], axis=0)
+tian_df = tian_df[~tian_df['Штрих-код'].isna()]
+tian_df.rename(columns={'Штрих-код': 'Штрих код'}, inplace=True)
+tian_df['Штрих код'] = tian_df['Штрих код'].astype("string")
+tian_df = tian_df[tian_df['Наименование товаров'].str.contains('AMBROSIA')]
+
+
+tian_seller_products = seller_products[seller_products['Артикул'].str.startswith('ТИАН')]
+tian_df_merged = tian_df.merge(tian_seller_products, on='Штрих код', how='left')
+tian_df_new = tian_df_merged[tian_df_merged['Артикул'].isna()]
+tian_df_new.to_excel('new kartochki/tian.xlsx', index=False)
+tian_df_merged = tian_seller_products.merge(tian_df, on='Штрих код',how='left')
+
+tian_stop_list = pd.read_excel('stop list/tian.xlsx', converters={'Штрих код': str})
+tian_stop_list = tian_stop_list[tian_stop_list['Продаем(да,нет)'] == 'нет']
+tian_df_merged = tian_df_merged[~tian_df_merged['Штрих код'].isin(tian_stop_list['Штрих код'])]
+
+tian_stock_template = pd.read_excel('stock-update-template.xlsx', sheet_name='Остатки на складе')
+tian_stock_template['Артикул'] = tian_df_merged['Артикул']
+tian_stock_template['Количество'] = tian_df_merged['Остаток'].apply(lambda x: lol2(x))
+tian_stock_template['Имя (необязательно)'] = tian_df_merged['Штрих код']
+tian_stock_template['Заполнение обязательных ячеек'] = 'Заполнены'
+tian_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
+tian_stock_template['Цена с НДС'] = tian_df_merged['Цена  с НДС 20%']
+tian_stock_template.to_excel('result/tian.xlsx', index=False)
