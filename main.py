@@ -25,6 +25,10 @@ def fuck(x):
 
 seller_products['Штрих код'] = seller_products['Штрих код'].apply(lambda x: fuck(x))
 
+nashi_fbs_ostatki = pd.read_excel('Текущие остатки.xlsx')
+nashi_fbs_ostatki = nashi_fbs_ostatki.fillna('-')
+nashi_fbs_ostatki = nashi_fbs_ostatki[nashi_fbs_ostatki['Количество'] != 0]
+
 alpaka_prefixed = [filename for filename in os.listdir('./prices') if filename.startswith("price_mi")]
 alpaka_df = pd.read_excel('prices/' + alpaka_prefixed[0])
 
@@ -57,9 +61,20 @@ alpaka_stop_list = pd.read_excel('stop list/alpaka.xlsx', converters={'Штри�
 alpaka_stop_list = alpaka_stop_list[alpaka_stop_list['Продаем(да,нет)'] == 'нет']
 alpaka_df_merged['Наличие'] = alpaka_df_merged['Наличие']*(~alpaka_df_merged['Штрих код'].isin(alpaka_stop_list['Штрих код'])).astype(int)
 
+
 alpaka_stock_template = pd.read_excel('stock-update-template.xlsx', sheet_name='Остатки на складе')
 alpaka_stock_template['Артикул'] = alpaka_df_merged['Артикул']
 alpaka_stock_template['Количество'] = alpaka_df_merged['Наличие']
+
+def kek(row):
+    if row['Артикул'] in nashi_fbs_ostatki['Артикул'].values:
+        kolvo = nashi_fbs_ostatki[row['Артикул'] == nashi_fbs_ostatki['Артикул']]['Количество'].iloc[0]
+        b= row['Количество']+kolvo
+        return b
+    else:
+        return row['Количество']
+
+alpaka_stock_template['Количество'] = alpaka_stock_template.apply(kek, axis=1)
 alpaka_stock_template['Имя (необязательно)'] = alpaka_df_merged['Штрих код']
 alpaka_stock_template['Заполнение обязательных ячеек'] = 'Заполнены'
 alpaka_stock_template['Цена с НДС'] = alpaka_df_merged['Цена с НДС']
@@ -99,6 +114,7 @@ spk_df_merged['Остаток'] = spk_df_merged['Остаток']*(~spk_df_merge
 spk_stock_template = pd.read_excel('stock-update-template.xlsx', sheet_name='Остатки на складе')
 spk_stock_template['Артикул'] = spk_df_merged['Артикул_x']
 spk_stock_template['Количество'] = spk_df_merged['Остаток']
+spk_stock_template['Количество'] = spk_stock_template.apply(kek, axis=1)
 spk_stock_template['Имя (необязательно)'] = spk_df_merged['Штрих код']
 spk_stock_template['Заполнение обязательных ячеек'] = 'Заполнены'
 spk_stock_template['Цена с НДС'] = spk_df_merged['Цена с НДС']
@@ -131,6 +147,7 @@ trbt_df_merged['Свободный остаток'] = trbt_df_merged['Свобо
 trbt_stock_template = pd.read_excel('stock-update-template.xlsx', sheet_name='Остатки на складе')
 trbt_stock_template['Артикул'] = trbt_df_merged['Артикул']
 trbt_stock_template['Количество'] = trbt_df_merged['Свободный остаток']
+trbt_stock_template['Количество'] = trbt_stock_template.apply(kek, axis=1)
 trbt_stock_template['Имя (необязательно)'] = trbt_df_merged['Штрих код']
 trbt_stock_template['Заполнение обязательных ячеек'] = 'Заполнены'
 trbt_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
@@ -168,6 +185,7 @@ zoom_df_merged['Остаток_x'] = zoom_df_merged['Остаток_x']*(~zoom_d
 zoom_stock_template = pd.read_excel('stock-update-template.xlsx', sheet_name='Остатки на складе')
 zoom_stock_template['Артикул'] = zoom_df_merged['Артикул']
 zoom_stock_template['Количество'] = zoom_df_merged['Остаток_x']
+zoom_stock_template['Количество'] = zoom_stock_template.apply(kek, axis=1)
 zoom_stock_template['Имя (необязательно)'] = zoom_df_merged['Штрих код']
 zoom_stock_template['Заполнение обязательных ячеек'] = 'Заполнены'
 zoom_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
@@ -199,6 +217,7 @@ tian_df_merged = tian_df_merged[~tian_df_merged['Штрих код'].isin(tian_s
 tian_stock_template = pd.read_excel('stock-update-template.xlsx', sheet_name='Остатки на складе')
 tian_stock_template['Артикул'] = tian_df_merged['Артикул']
 tian_stock_template['Количество'] = tian_df_merged['Остаток'].apply(lambda x: lol2(x))
+tian_stock_template['Количество'] = tian_stock_template.apply(kek, axis=1)
 tian_stock_template['Имя (необязательно)'] = tian_df_merged['Штрих код']
 tian_stock_template['Заполнение обязательных ячеек'] = 'Заполнены'
 tian_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
