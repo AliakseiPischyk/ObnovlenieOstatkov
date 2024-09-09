@@ -174,6 +174,7 @@ zoom_stock_template['Название склада'] = 'ФБС Боровлян�
 zoom_stock_template['Цена с НДС'] = zoom_df_merged['ЗМ c НДС']
 zoom_stock_template.to_excel('result/zoom.xlsx', index=False)
 
+
 tian_prefixed = [filename for filename in os.listdir('./prices') if filename.startswith('ООО ТИАН')]
 tian_df = pd.read_excel('prices/' + tian_prefixed[0])
 tian_df = tian_df.drop(tian_df.columns[[0, 2, 3, 5, 7, 8, 9, 10]], axis=1)
@@ -203,3 +204,5 @@ tian_stock_template['Заполнение обязательных ячеек'] 
 tian_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
 tian_stock_template['Цена с НДС'] = tian_df_merged['Цена  с НДС 20%']
 tian_stock_template.to_excel('result/tian.xlsx', index=False)
+
+
