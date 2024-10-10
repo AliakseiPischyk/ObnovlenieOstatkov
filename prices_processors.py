@@ -82,11 +82,12 @@ def parse_seller_products(path):
 def process_alpaka(alpaka_prefixed, alpaka_word, seller_products, our_fbs_stock):
     alpaka_df = pd.read_excel('prices/' + alpaka_prefixed[0])
 
-    alpaka_df = alpaka_df.drop(alpaka_df.columns[[0, 2, 3, 4, 7, 8, 10, 11, 12]], axis=1)
+    alpaka_df = alpaka_df.drop(alpaka_df.columns[[0, 2, 3, 6, 7, 9, 10, 11]], axis=1)
     alpaka_df.columns = alpaka_df.loc[3].values.flatten().tolist()
     alpaka_df = alpaka_df.drop([0, 1, 2, 3], axis=0)
     alpaka_df = alpaka_df[alpaka_df['Штрихкод'].notna()]
 
+    alpaka_df['Наличие'] = alpaka_df['Наличие'].astype(int)
     alpaka_df['Наличие'] = alpaka_df['Наличие'].apply(lambda x: fill_alpaka_ostatok(x))
     alpaka_df.rename(columns={'Штрихкод': 'Штрих код'}, inplace=True)
     print('Колонки:'+str(alpaka_df.columns.values))

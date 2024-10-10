@@ -34,10 +34,10 @@ def fill_null_with_0_else_randint(x):
 
 
 def fill_alpaka_ostatok(x):
-    if x == 'Нет в наличии':
+    if x == 0:
         return 0
-    elif x == 'Мало' or x == 'В наличии':
-        return random.randint(500, 1000)
+    elif x>0:
+        return random.randint(500,1000)
     else:
         return -999
 
