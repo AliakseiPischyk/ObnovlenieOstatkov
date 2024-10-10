@@ -15,6 +15,7 @@ our_fbs_stock = parse_our_fbs_stock()
 
 
 print(' ')
+
 print(' ')
 alpaka_start_tag = 'price_mi'
 alpaka_word = 'АЛЬПАКА'
