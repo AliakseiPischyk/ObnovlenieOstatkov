@@ -245,13 +245,14 @@ def process_zoom(zoom_prefixed, zoom_word, seller_products, our_fbs_stock):
 def process_tian(tian_prefixed, tian_word, seller_products, our_fbs_stock):
     tian_df = pd.read_excel('prices/' + tian_prefixed[0])
     tian_df = tian_df.drop(tian_df.columns[[0, 2, 3, 5, 7, 8, 9, 10]], axis=1)
-    tian_df.columns = tian_df.loc[1].values.flatten().tolist()
-    tian_df = tian_df.drop([0, 1, 2], axis=0)
-    tian_df = tian_df[~tian_df['Штрих-код'].isna()]
+    tian_df.columns = tian_df.loc[2].values.flatten().tolist()
+    tian_df = tian_df.drop([0, 1, 2, 3], axis=0)
+
     tian_df.rename(columns={'Штрих-код': 'Штрих код', 'Штрих - код': 'Штрих код',
                             'Штрихкод': 'Штрих код', 'Штрих код': 'Штрих код'}, inplace=True)
                             #на всякий случай перебарл варики, а то они руками пишут,
                             #может быть и ошибки в названии других колонок
+    tian_df = tian_df[~tian_df['Штрих код'].isna()]
     tian_df['Штрих код'] = tian_df['Штрих код'].astype("string")
     print('Колонки:' + str(tian_df.columns.values))
     tian_df = tian_df[tian_df['Наименование товаров'].str.contains('AMBROSIA')]
