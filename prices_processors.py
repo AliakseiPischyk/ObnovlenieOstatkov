@@ -247,11 +247,7 @@ def process_tian(tian_prefixed, tian_word, seller_products, our_fbs_stock):
     tian_df = tian_df.drop(tian_df.columns[[0, 2, 3, 5, 7, 8, 9, 10]], axis=1)
     tian_df.columns = tian_df.loc[2].values.flatten().tolist()
     tian_df = tian_df.drop([0, 1, 2, 3], axis=0)
-
-    tian_df.rename(columns={'Штрих-код': 'Штрих код', 'Штрих - код': 'Штрих код',
-                            'Штрихкод': 'Штрих код', 'Штрих код': 'Штрих код'}, inplace=True)
-                            #на всякий случай перебарл варики, а то они руками пишут,
-                            #может быть и ошибки в названии других колонок
+    tian_df = rename_barcode_col(tian_df)
     tian_df = tian_df[~tian_df['Штрих код'].isna()]
     tian_df['Штрих код'] = tian_df['Штрих код'].astype("string")
     print('Колонки:' + str(tian_df.columns.values))
@@ -319,3 +315,39 @@ def process_anmd(anmd_prefixed, anmd_word, seller_products, our_fbs_stock):
     anmd_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
     anmd_stock_template.to_excel('result/' + anmd_word + '.xlsx', index=False)
     info_price_proccessed(anmd_word)
+
+
+
+def process_hntr(hntr_prefixed, hntr_word, seller_products, our_fbs_stock):
+    hntr_df = pd.read_excel('prices/' + hntr_prefixed[0])
+    hntr_df = hntr_df.drop(hntr_df.columns[[0, 1, 2, 4, 5, 6, 7, 10, 11, 12]], axis=1)
+    hntr_df.columns = hntr_df.loc[1].values.flatten().tolist()
+    hntr_df = hntr_df.drop([0, 1], axis=0)
+
+    hntr_df = rename_barcode_col(hntr_df)
+    hntr_df = hntr_df[~hntr_df['Штрих код'].isna()]
+    hntr_df['Штрих код'] = hntr_df['Штрих код'].astype("string")
+    print('Колонки:' + str(hntr_df.columns.values))
+
+    hntr_seller_products = seller_products[seller_products['Артикул'].str.startswith('ХНТР')]
+    hntr_df_merged = hntr_df.merge(hntr_seller_products, on='Штрих код', how='left')
+    hntr_df_new = hntr_df_merged[hntr_df_merged['Артикул'].isna()]
+    hntr_df_new.to_excel('new kartochki/' + hntr_word + '.xlsx', index=False)
+    info_new_katrochki(len(hntr_df_new), hntr_word)
+    hntr_df_merged = hntr_seller_products.merge(hntr_df, on='Штрих код', how='left')
+
+    hntr_stop_list = pd.read_excel('stop list/' + hntr_word + '.xlsx', converters={'Штрих код': str})
+    hntr_stop_list = hntr_stop_list[hntr_stop_list['Продаем(да,нет)'] == 'нет']
+    hntr_df_merged = hntr_df_merged[~hntr_df_merged['Штрих код'].isin(hntr_stop_list['Штрих код'])]
+
+    hntr_stock_template = pd.read_excel('stock-update-template.xlsx', sheet_name='Остатки на складе')
+    hntr_stock_template['Артикул'] = hntr_df_merged['Артикул']
+    hntr_stock_template['Количество'] = hntr_df_merged['остаток'].apply(lambda x: fill_null_with_0_else_randint(x))
+    hntr_stock_template['Количество'] = hntr_stock_template.apply(lambda row: add_our_fbs_stock(row, our_fbs_stock),
+                                                                  axis=1)
+    hntr_stock_template['Имя (необязательно)'] = hntr_df_merged['Штрих код']
+    hntr_stock_template['Заполнение обязательных ячеек'] = 'Заполнены'
+    hntr_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
+    hntr_stock_template['Цена с НДС'] = hntr_df_merged['Цена со скидкой с НДС']
+    hntr_stock_template.to_excel('result/' + hntr_word + '.xlsx', index=False)
+    info_price_proccessed(hntr_word)

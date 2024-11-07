@@ -85,3 +85,15 @@ if is_one_file(anmd_prefixed, anmd_start_tag):
     process_anmd(anmd_prefixed, anmd_word, seller_products, our_fbs_stock)
 else:
     info_price_not_proccessed(anmd_word)
+
+
+print(' ')
+print(' ')
+hntr_start_tag = 'Прайс с'
+hntr_word = 'ХАНТЕР'
+hntr_prefixed = [filename for filename in os.listdir('./prices') if filename.startswith(hntr_start_tag)]
+
+if is_one_file(hntr_prefixed, hntr_start_tag):
+    process_hntr(hntr_prefixed, hntr_word, seller_products, our_fbs_stock)
+else:
+    info_price_not_proccessed(hntr_word)
