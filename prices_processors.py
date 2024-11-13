@@ -319,3 +319,4 @@ def process_anmd(anmd_prefixed, anmd_word, seller_products, our_fbs_stock):
     anmd_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
     anmd_stock_template.to_excel('result/' + anmd_word + '.xlsx', index=False)
     info_price_proccessed(anmd_word)
+
