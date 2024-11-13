@@ -114,14 +114,14 @@ def process_alpaka(alpaka_prefixed, alpaka_word, seller_products, our_fbs_stock)
     alpaka_stock_template['Имя (необязательно)'] = alpaka_df_merged['Штрих код']
     alpaka_stock_template['Заполнение обязательных ячеек'] = 'Заполнены'
     alpaka_stock_template['Цена с НДС'] = alpaka_df_merged['Цена с НДС']
-    alpaka_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
+    alpaka_stock_template['Название склада'] = sklad_name
     alpaka_stock_template.to_excel('result/' + alpaka_word + '.xlsx', index=False)
     info_price_proccessed(alpaka_word)
 
 
 def process_spk(spk_prefixed, spk_word, seller_products, our_fbs_stock):
     spk_df = pd.read_excel('prices/' + spk_prefixed[0])
-    spk_df = spk_df.drop(spk_df.columns[[1, 3, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 18, 19]], axis=1)
+    spk_df = spk_df.drop(spk_df.columns[[1, 3, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 18]], axis=1)
     spk_df.columns = spk_df.loc[11].values.flatten().tolist()
     spk_df = spk_df.drop([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], axis=0)
     spk_df = spk_df[spk_df['Штрихкод'].notna()]
@@ -155,7 +155,7 @@ def process_spk(spk_prefixed, spk_word, seller_products, our_fbs_stock):
     spk_stock_template['Имя (необязательно)'] = spk_df_merged['Штрих код']
     spk_stock_template['Заполнение обязательных ячеек'] = 'Заполнены'
     spk_stock_template['Цена с НДС'] = spk_df_merged['Цена с НДС']
-    spk_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
+    spk_stock_template['Название склада'] = sklad_name
     spk_stock_template.to_excel('result/' + spk_word + '.xlsx', index=False)
     info_price_proccessed(spk_word)
 
@@ -193,7 +193,7 @@ def process_trbt(trbt_prefixed, trbt_word, seller_products, our_fbs_stock):
                                                                   axis=1)
     trbt_stock_template['Имя (необязательно)'] = trbt_df_merged['Штрих код']
     trbt_stock_template['Заполнение обязательных ячеек'] = 'Заполнены'
-    trbt_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
+    trbt_stock_template['Название склада'] = sklad_name
     trbt_stock_template['Цена с НДС'] = trbt_df_merged['Цена с НДС']
     trbt_stock_template.to_excel('result/' + trbt_word + '.xlsx', index=False)
     info_price_proccessed(trbt_word)
@@ -236,7 +236,7 @@ def process_zoom(zoom_prefixed, zoom_word, seller_products, our_fbs_stock):
                                                                   axis=1)
     zoom_stock_template['Имя (необязательно)'] = zoom_df_merged['Штрих код']
     zoom_stock_template['Заполнение обязательных ячеек'] = 'Заполнены'
-    zoom_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
+    zoom_stock_template['Название склада'] = sklad_name
     zoom_stock_template['Цена с НДС'] = zoom_df_merged['ЗМ c НДС']
     zoom_stock_template.to_excel('result/' + zoom_word + '.xlsx', index=False)
     info_price_proccessed(zoom_word)
@@ -275,7 +275,7 @@ def process_tian(tian_prefixed, tian_word, seller_products, our_fbs_stock):
                                                                   axis=1)
     tian_stock_template['Имя (необязательно)'] = tian_df_merged['Штрих код']
     tian_stock_template['Заполнение обязательных ячеек'] = 'Заполнены'
-    tian_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
+    tian_stock_template['Название склада'] = sklad_name
     tian_stock_template['Цена с НДС'] = tian_df_merged['Цена  с НДС 20%']
     tian_stock_template.to_excel('result/' + tian_word + '.xlsx', index=False)
     info_price_proccessed(tian_word)
@@ -316,7 +316,7 @@ def process_anmd(anmd_prefixed, anmd_word, seller_products, our_fbs_stock):
     anmd_stock_template['Имя (необязательно)'] = anmd_df_merged['Штрих код']
     anmd_stock_template['Заполнение обязательных ячеек'] = 'Заполнены'
     anmd_stock_template['Цена с НДС'] = anmd_df_merged['Цена по предоплате (без НДС), руб'] * 1.2
-    anmd_stock_template['Название склада'] = 'ФБС Боровляны ООО (1020001420895000)'
+    anmd_stock_template['Название склада'] = sklad_name
     anmd_stock_template.to_excel('result/' + anmd_word + '.xlsx', index=False)
     info_price_proccessed(anmd_word)
 

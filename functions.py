@@ -1,6 +1,10 @@
 import random
 import pandas as pd
 
+
+sklad_name = 'ФБС Боровляны(дропшип) (1020001420895000)'
+
+
 def is_one_file(found_files_list, txt):
     if len(found_files_list) == 0:
         print('Файл ' + txt + ' отсутствует, обработки не будет')
