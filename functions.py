@@ -58,3 +58,10 @@ def add_our_fbs_stock(row, our_fbs_stock):
         return b
     else:
         return row['Количество']
+
+def rename_barcode_col(df):
+    df.rename(columns={'Штрих-код': 'Штрих код', 'Штрих - код': 'Штрих код',
+                            'Штрихкод': 'Штрих код', 'Штрих код': 'Штрих код'}, inplace=True)
+                            #на всякий случай перебарл варики, а то они руками пишут,
+                            #может быть и ошибки в названии других колонок
+    return df
