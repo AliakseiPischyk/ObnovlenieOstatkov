@@ -201,16 +201,16 @@ def process_trbt(trbt_prefixed, trbt_word, seller_products, our_fbs_stock):
 
 def process_zoom(zoom_prefixed, zoom_word, seller_products, our_fbs_stock):
     zoom_df = pd.read_excel('prices/' + zoom_prefixed[0])
-    zoom_df = zoom_df.drop(zoom_df.columns[[0, 4, 5, 6, 7, 9]], axis=1)
+    zoom_df = zoom_df.drop(zoom_df.columns[[0, 4, 5, 6, 8]], axis=1)
     zoom_df.columns = zoom_df.loc[7].values.flatten().tolist()
     zoom_df = zoom_df.drop([0, 1, 2, 3, 4, 5, 6, 7], axis=0)
-    zoom_df['Основной штрихкод'] = zoom_df['Основной штрихкод'].shift(periods=[-1])
+    zoom_df['Номенклатура.Основной штрихкод'] = zoom_df['Номенклатура.Основной штрихкод'].shift(periods=[-1])
     zoom_df['ЗМ c НДС'] = zoom_df['ЗМ c НДС'].shift(periods=[-1])
-    zoom_df = zoom_df.drop_duplicates(subset=['Основной штрихкод'])
-    zoom_df = zoom_df[zoom_df['Основной штрихкод'].notna()]
-    zoom_df['Основной штрихкод'] = zoom_df['Основной штрихкод'].astype(str)
-    zoom_df = zoom_df[zoom_df['Основной штрихкод'].str.contains(pat="[0-9]{13}", regex=True, na=True)]
-    zoom_df.rename(columns={'Основной штрихкод': 'Штрих код'}, inplace=True)
+    zoom_df = zoom_df.drop_duplicates(subset=['Номенклатура.Основной штрихкод'])
+    zoom_df = zoom_df[zoom_df['Номенклатура.Основной штрихкод'].notna()]
+    zoom_df['Номенклатура.Основной штрихкод'] = zoom_df['Номенклатура.Основной штрихкод'].astype(str)
+    zoom_df = zoom_df[zoom_df['Номенклатура.Основной штрихкод'].str.contains(pat="[0-9]{13}", regex=True, na=True)]
+    zoom_df.rename(columns={'Номенклатура.Основной штрихкод': 'Штрих код'}, inplace=True)
     zoom_df['Штрих код'] = zoom_df['Штрих код'].astype("string")
     print('Колонки:' + str(zoom_df.columns.values))
 
