@@ -99,16 +99,11 @@ def process_alpaka(alpaka_prefixed, alpaka_word, seller_products, our_fbs_stock)
     alpaka_df_new.to_excel('new kartochki/' + alpaka_word + '.xlsx', index=False)
     info_new_katrochki(len(alpaka_df_new), alpaka_word)
     alpaka_df_merged = alpaka_df.merge(seller_products, on='Штрих код')
-
-    alpaka_stop_list = pd.read_excel('stop list/' + alpaka_word + '.xlsx', converters={'Штрих код': str})
-    alpaka_stop_list = alpaka_stop_list[alpaka_stop_list['Продаем(да,нет)'] == 'нет']
-    alpaka_df_merged['Наличие'] = alpaka_df_merged['Наличие'] * (
-        ~alpaka_df_merged['Штрих код'].isin(alpaka_stop_list['Штрих код'])).astype(int)
+    alpaka_df_merged = filter_by_stoplist(alpaka_word,'Артикул', alpaka_df_merged, 'Артикул', 'Наличие')
 
     alpaka_stock_template = pd.read_excel('stock-update-template.xlsx', sheet_name='Остатки на складе')
     alpaka_stock_template['Артикул'] = alpaka_df_merged['Артикул']
     alpaka_stock_template['Количество'] = alpaka_df_merged['Наличие']
-
     alpaka_stock_template['Количество'] = alpaka_stock_template.apply(lambda row: add_our_fbs_stock(row, our_fbs_stock),
                                                                       axis=1)
     alpaka_stock_template['Имя (необязательно)'] = alpaka_df_merged['Штрих код']
@@ -140,12 +135,7 @@ def process_spk(spk_prefixed, spk_word, seller_products, our_fbs_stock):
 
     spk_df_merged['Остаток'] = spk_df_merged.apply(lambda row: fill_null_with_0_else_randint(row['Номенклатура']),
                                                    axis=1)
-
-    spk_stop_list = pd.read_excel('stop list/' + spk_word + '.xlsx', converters={'Штрих код': str})
-    spk_stop_list = spk_stop_list[spk_stop_list['Продаем(да,нет)'] == 'нет']
-    spk_df_merged = spk_df_merged[~spk_df_merged['Штрих код'].isin(spk_stop_list['Штрих код'])]
-    spk_df_merged['Остаток'] = spk_df_merged['Остаток'] * (
-        ~spk_df_merged['Штрих код'].isin(spk_stop_list['Штрих код'])).astype(int)
+    spk_df_merged = filter_by_stoplist(spk_word,'Артикул', spk_df_merged,'Артикул_x', 'Остаток')
 
     spk_stock_template = pd.read_excel('stock-update-template.xlsx', sheet_name='Остатки на складе')
     spk_stock_template['Артикул'] = spk_df_merged['Артикул_x']
@@ -177,14 +167,10 @@ def process_trbt(trbt_prefixed, trbt_word, seller_products, our_fbs_stock):
     info_new_katrochki(len(trbt_df_new), trbt_word)
     trbt_df_merged = trbt_seller_products.merge(trbt_df, on='Штрих код', how='left')
 
-    trbt_stop_list = pd.read_excel('stop list/' + trbt_word + '.xlsx', converters={'Штрих код': str})
-    trbt_stop_list = trbt_stop_list[trbt_stop_list['Продаем(да,нет)'] == 'нет']
-
     trbt_df_merged['Свободный остаток'] = trbt_df_merged['Свободный остаток'].apply(
         lambda x: fill_null_with_0_else_randint(x))
-    trbt_df_merged = trbt_df_merged[~trbt_df_merged['Штрих код'].isin(trbt_stop_list['Штрих код'])]
-    trbt_df_merged['Свободный остаток'] = trbt_df_merged['Свободный остаток'] * (
-        ~trbt_df_merged['Штрих код'].isin(trbt_stop_list['Штрих код'])).astype(int)
+
+    trbt_df_merged = filter_by_stoplist(trbt_word,'Артикул', trbt_df_merged,'Артикул', 'Свободный остаток')
 
     trbt_stock_template = pd.read_excel('stock-update-template.xlsx', sheet_name='Остатки на складе')
     trbt_stock_template['Артикул'] = trbt_df_merged['Артикул']
@@ -220,14 +206,9 @@ def process_zoom(zoom_prefixed, zoom_word, seller_products, our_fbs_stock):
     info_new_katrochki(len(zoom_df_new), zoom_word)
     zoom_seller_products = seller_products[seller_products['Артикул'].str.startswith('ЗООМ')]
     zoom_df_merged = zoom_seller_products.merge(zoom_df, on='Штрих код', how='left')
-
-    zoom_stop_list = pd.read_excel('stop list/' + zoom_word + '.xlsx', converters={'Штрих код': str})
-    zoom_stop_list = zoom_stop_list[zoom_stop_list['Продаем(да,нет)'] == 'нет']
-
     zoom_df_merged['Остаток_x'] = (zoom_df_merged['Ценовая группа/ Номенклатура/ Характеристика номенклатуры']
                                    .apply(lambda x: fill_null_with_0_else_randint(x)))
-    zoom_df_merged['Остаток_x'] = zoom_df_merged['Остаток_x'] * (
-        ~zoom_df_merged['Штрих код'].isin(zoom_stop_list['Штрих код'])).astype(int)
+    zoom_df_merged = filter_by_stoplist(zoom_word, 'Артикул', zoom_df_merged,'Артикул', 'Остаток_x')
 
     zoom_stock_template = pd.read_excel('stock-update-template.xlsx', sheet_name='Остатки на складе')
     zoom_stock_template['Артикул'] = zoom_df_merged['Артикул']
@@ -260,14 +241,12 @@ def process_tian(tian_prefixed, tian_word, seller_products, our_fbs_stock):
     tian_df_new.to_excel('new kartochki/' + tian_word + '.xlsx', index=False)
     info_new_katrochki(len(tian_df_new), tian_word)
     tian_df_merged = tian_seller_products.merge(tian_df, on='Штрих код', how='left')
-
-    tian_stop_list = pd.read_excel('stop list/' + tian_word + '.xlsx', converters={'Штрих код': str})
-    tian_stop_list = tian_stop_list[tian_stop_list['Продаем(да,нет)'] == 'нет']
-    tian_df_merged = tian_df_merged[~tian_df_merged['Штрих код'].isin(tian_stop_list['Штрих код'])]
+    tian_df_merged['Остаток'] = tian_df_merged['Остаток'].apply(lambda x: fill_null_with_0_else_randint(x))
+    tian_df_merged = filter_by_stoplist(tian_word, 'Артикул', tian_df_merged, 'Артикул', 'Остаток')
 
     tian_stock_template = pd.read_excel('stock-update-template.xlsx', sheet_name='Остатки на складе')
     tian_stock_template['Артикул'] = tian_df_merged['Артикул']
-    tian_stock_template['Количество'] = tian_df_merged['Остаток'].apply(lambda x: fill_null_with_0_else_randint(x))
+    tian_stock_template['Количество'] = tian_df_merged['Остаток']
     tian_stock_template['Количество'] = tian_stock_template.apply(lambda row: add_our_fbs_stock(row, our_fbs_stock),
                                                                   axis=1)
     tian_stock_template['Имя (необязательно)'] = tian_df_merged['Штрих код']
@@ -298,12 +277,7 @@ def process_anmd(anmd_prefixed, anmd_word, seller_products, our_fbs_stock):
 
     anmd_df_merged['Остаток'] = anmd_df_merged.apply(lambda row: fill_null_with_0_else_randint(row['Полный ШК']),
                                                      axis=1)
-
-    anmd_stop_list = pd.read_excel('stop list/' + anmd_word + '.xlsx', converters={'Штрих код': str})
-    anmd_stop_list = anmd_stop_list[anmd_stop_list['Продаем(да,нет)'] == 'нет']
-    anmd_df_merged = anmd_df_merged[~anmd_df_merged['Штрих код'].isin(anmd_stop_list['Штрих код'])]
-    anmd_df_merged['Остаток'] = anmd_df_merged['Остаток'] * (
-        ~anmd_df_merged['Штрих код'].isin(anmd_stop_list['Штрих код'])).astype(int)
+    anmd_df_merged = filter_by_stoplist(anmd_word,'Артикул', anmd_df_merged,'Артикул', 'Остаток')
 
     anmd_stock_template = pd.read_excel('stock-update-template.xlsx', sheet_name='Остатки на складе')
     anmd_stock_template['Артикул'] = anmd_df_merged['Артикул']
@@ -333,12 +307,12 @@ def process_hntr(hntr_prefixed, hntr_word, seller_products, our_fbs_stock):
     hntr_df_new.to_excel('new kartochki/' + hntr_word + '.xlsx', index=False)
     info_new_katrochki(len(hntr_df_new), hntr_word)
     hntr_df_merged = hntr_seller_products.merge(hntr_df, on='Штрих код', how='left')
-    hntr_stop_list = pd.read_excel('stop list/' + hntr_word + '.xlsx', converters={'Штрих код': str})
-    hntr_stop_list = hntr_stop_list[hntr_stop_list['Продаем(да,нет)'] == 'нет']
-    hntr_df_merged = hntr_df_merged[~hntr_df_merged['Штрих код'].isin(hntr_stop_list['Штрих код'])]
+    hntr_df_merged['остаток'] = hntr_df_merged['остаток'].apply(lambda x: fill_null_with_0_else_randint(x))
+    hntr_df_merged = filter_by_stoplist(hntr_word,'Артикул', hntr_df_merged, 'Артикул','остаток')
+
     hntr_stock_template = pd.read_excel('stock-update-template.xlsx', sheet_name='Остатки на складе')
     hntr_stock_template['Артикул'] = hntr_df_merged['Артикул']
-    hntr_stock_template['Количество'] = hntr_df_merged['остаток'].apply(lambda x: fill_null_with_0_else_randint(x))
+    hntr_stock_template['Количество'] = hntr_df_merged['остаток']
     hntr_stock_template['Количество'] = hntr_stock_template.apply(lambda row: add_our_fbs_stock(row, our_fbs_stock),
                                                                   axis=1)
     hntr_stock_template['Имя (необязательно)'] = hntr_df_merged['Штрих код']

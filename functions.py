@@ -65,3 +65,10 @@ def rename_barcode_col(df):
                             #на всякий случай перебарл варики, а то они руками пишут,
                             #может быть и ошибки в названии других колонок
     return df
+
+
+def filter_by_stoplist(stoplist_file_name, stoplist_col_name_search_in, df_to_be_filtered,df_col_name_search_in,df_ostatok_col_name):
+    stop_list = pd.read_excel('stop list/' + stoplist_file_name + '.xlsx', converters={'Штрих код': str})
+    stop_list_no = stop_list[stop_list['Продаем(да,нет)'] == 'нет']
+    df_to_be_filtered[df_ostatok_col_name] = df_to_be_filtered[df_ostatok_col_name]*(~df_to_be_filtered[df_col_name_search_in].isin(stop_list_no[stoplist_col_name_search_in])).astype(int)
+    return df_to_be_filtered
